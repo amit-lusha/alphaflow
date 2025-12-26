@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage
 load_dotenv()
 
 def run():
-    print("🚀 Initializing AlphaFlow (Phase 2: Tools)...")
+    print("Initializing AlphaFlow (Phase 2: Tools)...")
     app = build_graph()
     
     config = {"configurable": {"thread_id": "cli_test_user"}} 
