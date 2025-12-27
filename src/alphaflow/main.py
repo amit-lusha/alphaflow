@@ -69,6 +69,6 @@ def run_silent(user_id: str, user_input: str):
 
 if __name__ == "__main__":
     # run("cli_user", "What is the price of TSLA?\n\n")
-    result = run_silent("cli_user", "give me the price of TSLA")
+    result = run_silent("cli_user", "what is the latest news about TSLA?")
     # check_keys()
     logging.info("Message: %s", result)

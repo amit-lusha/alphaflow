@@ -20,6 +20,8 @@ dependencies = [
     "mcp>=1.25.0",
     "langchain-mcp-adapters>=0.2.1",
     "langgraph-checkpoint-sqlite>=3.0.1",
+    "feedparser>=6.0.12",
+    "httpx>=0.28.1",
 ]
 
 [build-system]
