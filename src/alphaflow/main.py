@@ -3,6 +3,28 @@ import logging
 from alphaflow.workflows.entrypoint import build_graph
 from langchain_core.messages import HumanMessage
 
+def check_keys():
+    from dotenv import load_dotenv
+    import os
+
+    load_dotenv()
+
+    key = os.getenv("LANGCHAIN_API_KEY")
+
+    print(f"--- DEBUG INFO ---")
+    if key:
+        print(f"Key Found: Yes")
+        print(f"Length: {len(key)}")
+        print(f"Starts with: {key[:5]}...")
+        print(f"Ends with: ...{key[-5:]}")
+        
+        # Check for hidden whitespace
+        if key.strip() != key:
+            print("❌ CRITICAL ERROR: Your key has hidden spaces at the start or end!")
+        else:
+            print("✅ No hidden spaces found.")
+    else:
+        print("❌ Key NOT found in os.environ")
 
 def run(user_id: str, user_input: str):
     print("Initializing AlphaFlow (Phase 2: Tools)...")
@@ -47,5 +69,6 @@ def run_silent(user_id: str, user_input: str):
 
 if __name__ == "__main__":
     # run("cli_user", "What is the price of TSLA?\n\n")
-    result = run_silent("cli_user", "Did i ask something before")
+    result = run_silent("cli_user", "give me the price of TSLA")
+    # check_keys()
     logging.info("Message: %s", result)
