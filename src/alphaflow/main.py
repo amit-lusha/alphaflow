@@ -1,17 +1,14 @@
-from alphaflow.graph import build_graph
-from dotenv import load_dotenv
+import logging
+import logging
+from alphaflow.workflows.entrypoint import build_graph
 from langchain_core.messages import HumanMessage
 
-load_dotenv()
 
-def run():
+def run(user_id: str, user_input: str):
     print("Initializing AlphaFlow (Phase 2: Tools)...")
     app = build_graph()
     
-    config = {"configurable": {"thread_id": "cli_test_user"}} 
-    # Let's ask a question that requires a tool
-    user_input = "check for NVDA as well?"
-    # user_input = "can you tell me what was the last question i asked"
+    config = {"configurable": {"thread_id": user_id}} 
 
     print(f"👤 User: {user_input}")
     
@@ -29,14 +26,26 @@ def run():
             
             # If the Analyst spoke (Tool Call or Final Answer)
             if node_name == "analyst":
-                if last_message.tool_calls:
-                    print(f"   🛠️  Analyst calling tool: {last_message.tool_calls[0]['name']}")
+                if getattr(last_message, "tool_calls", None):
+                    for tc in last_message.tool_calls:
+                        print(f"   🛠️  Analyst calling tool: {tc['name']} (Args: {tc['args']})")
                 else:
                     print(f"   💬 Analyst: {last_message.content}")
             
             # If the Tool ran
             elif node_name == "tools":
-                print(f"   📊 Tool Result: {last_message.content}")
+                logging.debug(f"   📊 Tool Result: {last_message.content}")
+
+def run_silent(user_id: str, user_input: str):
+    app = build_graph()
+    config = {"configurable": {"thread_id": user_id}}
+    
+    initial_state = {"messages": [HumanMessage(content=user_input)]}
+    final_state = app.invoke(initial_state, config=config)
+    
+    return final_state["messages"][-1].content
 
 if __name__ == "__main__":
-    run()
+    # run("cli_user", "What is the price of TSLA?\n\n")
+    result = run_silent("cli_user", "Did i ask something before")
+    logging.info("Message: %s", result)

@@ -1,8 +1,12 @@
-import logging
 import yfinance as yf
 from langchain_core.tools import tool
-from alphaflow.rag import get_vector_store
+from alphaflow.services.rag import get_vector_store
 from langchain_community.document_loaders import WebBaseLoader
+from alphaflow.core.config import settings
+import logging
+
+# Get the logger configured in __init__.py or a default one
+logger = logging.getLogger("alphaflow.tools")
 
 @tool
 def get_stock_price(symbol: str):
@@ -11,11 +15,13 @@ def get_stock_price(symbol: str):
     Useful for answering questions about "how much is X?" or "current price of X".
     """
     try:
+        logger.debug(f"Fetching stock price for: {symbol}")
         ticker = yf.Ticker(symbol)
         price = ticker.fast_info.last_price
         currency = ticker.fast_info.currency
         return {"symbol": symbol, "price": price, "currency": currency}
     except Exception as e:
+        logger.error(f"Error fetching price for {symbol}: {e}", exc_info=True)
         return f"Error fetching price for {symbol}: {str(e)}"
 
 @tool
@@ -25,6 +31,7 @@ def get_company_profile(symbol: str):
     Useful for "what does X do?" or fundamental analysis.
     """
     try:
+        logger.debug(f"Fetching company profile for: {symbol}")
         ticker = yf.Ticker(symbol)
         info = ticker.info
         return {
@@ -35,6 +42,7 @@ def get_company_profile(symbol: str):
             "summary": info.get("longBusinessSummary")[:500] + "..." # Truncate for token efficiency
         }
     except Exception as e:
+        logger.error(f"Error fetching profile for {symbol}: {e}", exc_info=True)
         return f"Error fetching profile for {symbol}: {str(e)}"
 
 @tool
@@ -47,18 +55,15 @@ def search_financial_news(query: str):
         query: The search string (e.g., "Why is TSLA up?", "NVIDIA regulatory news")
     """
     try:
-        # 1. Connect to DB
+        logger.debug(f"Searching financial news for: {query}")
         db = get_vector_store()
         
-        # 2. Perform Similarity Search
-        # k=3 means "Give me the top 3 most relevant matches"
-        results = db.similarity_search(query, k=3)
+        results = db.similarity_search(query, k=settings.search_k_results)
         
         if not results:
+            logger.info("No news results found.")
             return "No relevant news found in the database."
             
-        # 3. Format Output
-        # The LLM needs text, not objects. We format it nicely.
         formatted_results = ""
         for doc in results:
             formatted_results += f"""
@@ -72,6 +77,7 @@ def search_financial_news(query: str):
         return formatted_results
 
     except Exception as e:
+        logger.error(f"Error querying news database: {e}", exc_info=True)
         return f"Error querying news database: {str(e)}"
 
 @tool
@@ -81,14 +87,14 @@ def read_website_content(url: str):
     Use this when the user provides a link (http/https) and asks you to analyze it.
     """
     try:
-        logging.info(f"Reading website: {url}")
+        logger.debug(f"Reading website content: {url}")
         loader = WebBaseLoader(url)
         docs = loader.load()
-        # Combine content and clean whitespace
         content = "\n\n".join([d.page_content for d in docs])
-        return " ".join(content.split())[:20000] # Limit size for safety
+        return " ".join(content.split())[:20000]
+        
     except Exception as e:
-        logging.error(f"Error reading website: {str(e)}")
+        logger.error(f"Error reading website {url}: {e}", exc_info=True)
         return f"Error reading website: {str(e)}"
 
 

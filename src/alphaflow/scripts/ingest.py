@@ -3,14 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from alphaflow.rag import get_vector_store
+from alphaflow.services.rag import get_vector_store
 
 def ingest_mock_news():
-    print("📥 Starting Ingestion Process...")
-    
-    # 1. Prepare Data
-    # Documents have 'page_content' (what the LLM reads) 
-    # and 'metadata' (used for filtering, though we won't filter yet).
     news_articles = [
         Document(
             page_content="Tesla (TSLA) shares jumped 5% today after Elon Musk announced a new 'Infinite Battery' technology that charges in 5 minutes.",
@@ -26,11 +21,8 @@ def ingest_mock_news():
         ),
     ]
     
-    # 2. Load the DB
     vector_store = get_vector_store()
     
-    # 3. Insert Data
-    # This automatically calls Google Embeddings -> Turns text to numbers -> Saves to disk
     print(f"📊 Adding {len(news_articles)} articles to ChromaDB...")
     vector_store.add_documents(news_articles)
     
