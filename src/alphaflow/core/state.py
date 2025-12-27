@@ -29,3 +29,4 @@ class AgentState(TypedDict):
     financial_data: FinancialMetrics | None = None
     research_notes: list[str]
     final_report: AnalysisReport | None = None
+    next: str | None = None 
