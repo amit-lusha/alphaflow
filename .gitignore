@@ -38,3 +38,6 @@ env/
 
 # Project Specific
 chroma_db/
+
+# Local DB
+*.sqlite
