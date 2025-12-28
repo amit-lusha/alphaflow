@@ -1,3 +1,4 @@
+from alphaflow.agents.agent import TechnicalPersona
 from alphaflow.core.prompts import get_technical_system_message
 from langchain_core.messages import SystemMessage
 from alphaflow.core.state import AgentState
@@ -13,8 +14,8 @@ def technical_analyst_node(state: AgentState):
     Worker node that deals with quantitative data.
     """
     messages = state["messages"]
-    
-    system_msg = get_technical_system_message()
+    persona = TechnicalPersona()
+    system_msg = persona.get_system_message()
     
     response = llm.invoke([system_msg] + messages)
     

@@ -60,5 +60,5 @@ def build_graph():
     
     return workflow.compile(
         checkpointer=memory,
-        interrupt_before=["publisher"]
+        interrupt_after=["publisher"]
     )

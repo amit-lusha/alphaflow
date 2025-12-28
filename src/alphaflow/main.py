@@ -51,31 +51,35 @@ def run(thread_id: str, prompt: str):
     # The graph stops before 'publisher'. We check the state to see if we are paused.
     snapshot = app.get_state(config)
     
-    if snapshot.next and "publisher" in snapshot.next:
-        print("\n✋ [PAUSED] Report Drafted.")
-        print("--- DRAFT ---")
+    if snapshot.values and "final_report" in snapshot.values:
+        report = snapshot.values["final_report"]
         
-        # Get the draft (Last message in history)
-        draft = snapshot.values["messages"][-1].content
-        print(draft)
-        print("-------------")
-        
-        # Interactive Review
-        # (If you are calling this from an API, you would remove this input() 
-        # and handle the pause in the API logic instead)
-        review = input("\nType 'yes' to publish, or feedback: ")
-        
-        if review.lower() in ["yes", "y", "approve"]:
-            print("\n✅ Approving...")
-            # Resume with an approval command
-            for output in app.stream(Command(resume="Approve"), config=config):
-                 print("⚡ Publishing...")
-        else:
-            print(f"\n↩️ Feedback: '{review}'")
-            # Inject feedback and resume
-            app.update_state(config, {"messages": [HumanMessage(content=f"Feedback: {review}")]})
-            for output in app.stream(None, config=config):
-                 pass # Let it loop back to the supervisor
+        # Check if report exists (it might be None if we are in early steps)
+        if report:
+            print("\n📊 [DRAFT GENERATED] - Please Review")
+            print("------------------------------------------------")
+            print(f"🎫 Ticker: {report.ticker} | 💲 Price: ${report.current_price}")
+            print(f"📈 Sentiment: {report.sentiment} | ⚠️ Risk: {report.risk_score}/10")
+            print(f"📝 Summary: {report.executive_summary}")
+            print("------------------------------------------------")
+            
+            review = input("\nType 'approve' to finish, or provide feedback: ")
+            
+            if review.lower() == "approve":
+                print("✅ Report Finalized.")
+                # In a real app, you would return 'report.json()' to the API here
+                return report
+            else:
+                print("↩️ Sending feedback...")
+                app.update_state(config, {"messages": [HumanMessage(content=f"Feedback: {review}")]})
+                # We need to route BACK to supervisor or analyst.
+                # Since Publisher is a sink, we might need a conditional edge loop.
+                # For simplicity in this phase, we just invoke again, 
+                # but ideally, you'd wire Publisher -> Supervisor in entrypoint.py
+                
+                # Let's run the stream again
+                for output in app.stream(None, config=config):
+                    pass
 
 if __name__ == "__main__":
     # Example Usage:

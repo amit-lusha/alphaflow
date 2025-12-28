@@ -1,3 +1,4 @@
+from alphaflow.agents.agent import FundamentalPersona
 from alphaflow.core.prompts import get_fundamental_system_message
 from alphaflow.core.state import AgentState
 from alphaflow.services.llm import get_llm
@@ -15,7 +16,7 @@ def fundamental_analyst_node(state: AgentState):
     """
     messages = state["messages"]
     
-    system_msg = get_fundamental_system_message()
+    system_msg = FundamentalPersona().get_system_message()
     
     response = llm.invoke([system_msg] + messages)
     

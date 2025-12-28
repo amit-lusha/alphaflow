@@ -1,3 +1,4 @@
+from alphaflow.agents.agent import SupervisorPersona
 from alphaflow.core.prompts import get_supervisor_system_message
 from typing import Literal
 from pydantic import BaseModel
@@ -15,7 +16,7 @@ def supervisor_node(state: AgentState):
     # 2. Force the LLM to return JSON matching RouteResponse
     llm = get_llm().with_structured_output(RouteResponse)
     
-    system_msg = get_supervisor_system_message()
+    system_msg = SupervisorPersona().get_system_message()
     
     response = llm.invoke([system_msg] + messages)
     
