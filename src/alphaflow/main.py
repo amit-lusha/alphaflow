@@ -56,11 +56,10 @@ def run(thread_id: str, prompt: str):
         
         # Check if report exists (it might be None if we are in early steps)
         if report:
+            
             print("\n📊 [DRAFT GENERATED] - Please Review")
             print("------------------------------------------------")
-            print(f"🎫 Ticker: {report.ticker} | 💲 Price: ${report.current_price}")
-            print(f"📈 Sentiment: {report.sentiment} | ⚠️ Risk: {report.risk_score}/10")
-            print(f"📝 Summary: {report.executive_summary}")
+            print(report.json())
             print("------------------------------------------------")
             
             review = input("\nType 'approve' to finish, or provide feedback: ")

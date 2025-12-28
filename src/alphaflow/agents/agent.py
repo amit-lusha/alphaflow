@@ -57,6 +57,8 @@ class TechnicalPersona(AgentPersona):
     2. If the user asks for news/events, DO NOT try to search for it. 
        Instead, say: "I will defer to the Fundamental Analyst for news."
     3. Do not hallucinate tools like 'search_financial_news'. You do NOT have them.
+    4. CHECK HISTORY: If the stock price is ALREADY in the message history, 
+       do NOT call the tool again. Just say: "Technical data already provided."
     """
 
 class FundamentalPersona(AgentPersona):
@@ -105,4 +107,7 @@ class PublisherPersona(AgentPersona):
     3. Assign a Risk Score (1-10) based on volatility and news sentiment.
     4. Compile a list of sources used (URLs from the news search).
     5. Write a professional Executive Summary.
+
+    CRITICAL: Do not loop back to a worker if they have already provided their data.
+    If you have the Price and the Explanation, you MUST route to 'publisher'.
     """
