@@ -5,7 +5,7 @@ from langchain_community.document_loaders import WebBaseLoader
 from alphaflow.core.config import settings
 import logging
 
-# Get the logger configured in __init__.py or a default one
+
 logger = logging.getLogger("alphaflow.tools")
 
 @tool
@@ -39,7 +39,7 @@ def get_company_profile(symbol: str):
             "name": info.get("longName"),
             "sector": info.get("sector"),
             "market_cap": info.get("marketCap"),
-            "summary": info.get("longBusinessSummary")[:500] + "..." # Truncate for token efficiency
+            "summary": info.get("longBusinessSummary")[:500] + "..." 
         }
     except Exception as e:
         logger.error(f"Error fetching profile for {symbol}: {e}", exc_info=True)

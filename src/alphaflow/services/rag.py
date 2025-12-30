@@ -1,13 +1,15 @@
 import os
 from langchain_chroma import Chroma
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-
-# 1. Configuration
-# We will save the database in a folder named 'chroma_db' inside your project
-CHROMA_PATH = "chroma_db"
-COLLECTION_NAME = "financial_news"
-
+from langchain_postgres import PGVector
 from alphaflow.core.config import settings
+
+RAW_DB_URI = os.getenv("POSTGRES_URI", "postgresql://alpha_user:alpha_pass@localhost:5432/alphaflow_db")
+
+# Driver for SQLAlchemy
+# SQLAlchemy needs "postgresql+psycopg://" to know we are using the new v3 driver.
+DB_CONNECTION = RAW_DB_URI.replace("postgresql://", "postgresql+psycopg://")
+COLLECTION_NAME = "financial_news"
 
 def get_embedding_function():
     return GoogleGenerativeAIEmbeddings(
@@ -16,8 +18,9 @@ def get_embedding_function():
     )
 
 def get_vector_store():
-    return Chroma(
+    return PGVector(
+        embeddings=get_embedding_function(),
         collection_name=COLLECTION_NAME,
-        embedding_function=get_embedding_function(),
-        persist_directory=CHROMA_PATH,
+        connection=DB_CONNECTION,
+        use_jsonb=True,
     )

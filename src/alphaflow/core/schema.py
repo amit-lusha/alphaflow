@@ -10,17 +10,13 @@ class Source(BaseModel):
     url: str
 
 class FinancialReport(BaseModel):
-    """The final structured output returned to the frontend/user."""
     ticker: str = Field(description="The main stock ticker symbol analyzed")
     current_price: float = Field(description="The latest price found")
-    
-    # Structured data for rendering UI badges/charts
+
     sentiment: Literal["Bullish", "Bearish", "Neutral"]
     risk_score: int = Field(description="Risk score from 1-10")
     
-    # The narrative
     executive_summary: str = Field(description="High-level summary for the user")
     
-    # Collections for UI tables/lists
     key_metrics: List[Metric]
     sources: List[Source]

@@ -26,14 +26,12 @@ class AgentPersona(ABC):
         Generates the LangChain SystemMessage.
         Automatically injects the current date and allows dynamic variable injection.
         """
-        # 1. Standard Header for all agents
+
         header = f"Role: {self.name.replace('_', ' ').title()}\n"
         header += f"Current Date: {datetime.now().strftime('%Y-%m-%d')}\n"
         
-        # 2. Combine with specific instructions
         full_prompt = f"{header}\n{self.base_instructions}"
         
-        # 3. Dynamic Injection (e.g., if you want to inject user name later)
         if kwargs:
             try:
                 full_prompt = full_prompt.format(**kwargs)
@@ -42,7 +40,6 @@ class AgentPersona(ABC):
 
         return SystemMessage(content=full_prompt.strip())
 
-# --- CONCRETE IMPLEMENTATIONS ---
 
 class TechnicalPersona(AgentPersona):
     name = "technical_analyst"

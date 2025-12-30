@@ -5,7 +5,6 @@ from datetime import datetime
 from langchain_core.documents import Document
 from alphaflow.services.rag import get_vector_store
 
-# Yahoo Finance RSS Feeds
 URLS = {
     "General": "https://finance.yahoo.com/news/rssindex",
     "TSLA": "https://finance.yahoo.com/rss/headline?s=TSLA",
@@ -15,7 +14,6 @@ URLS = {
     "MSFT": "https://finance.yahoo.com/rss/headline?s=MSFT"
 }
 
-# Yahoo usually blocks bots, so we look like a browser
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 }
@@ -24,11 +22,9 @@ async def fetch_feed_async(client: httpx.AsyncClient, category: str, url: str):
     """Fetches a single feed asynchronously."""
     print(f"📡 Requesting {category}...")
     try:
-        # Await the network call
         response = await client.get(url, headers=HEADERS, timeout=10.0, follow_redirects=True)
         response.raise_for_status()
         
-        # Parse content (feedparser is sync, but fast enough for text)
         feed = feedparser.parse(response.content)
         
         documents = []
@@ -61,23 +57,16 @@ async def fetch_feed_async(client: httpx.AsyncClient, category: str, url: str):
 async def main():
     print("🚀 Starting Async Ingestion...")
     
-    # 1. Create a single Async Client for all requests
     async with httpx.AsyncClient() as client:
-        # 2. Create a list of tasks (one per URL)
         tasks = [fetch_feed_async(client, cat, url) for cat, url in URLS.items()]
-        
-        # 3. Fire them all at once and wait for results
         results = await asyncio.gather(*tasks)
     
-    # Flatten the list of lists [[docs], [docs]] -> [docs]
     total_docs = [doc for batch in results for doc in batch]
     
     if not total_docs:
         print("❌ No news found.")
         return
 
-    # 4. Save to DB (ChromaDB operations are usually sync/fast enough locally)
-    # Deduplicate by URL
     ids = [doc.metadata["url"] for doc in total_docs]
     
     vector_store = get_vector_store()

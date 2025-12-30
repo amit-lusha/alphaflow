@@ -1,0 +1,29 @@
+services:
+  alphaflow:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_URI=postgresql://alpha_user:alpha_pass@db:5432/alphaflow_db
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+    depends_on:
+      - db
+
+    volumes:
+      - ./src:/app/src
+
+  db:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=alpha_user
+      - POSTGRES_PASSWORD=alpha_pass
+      - POSTGRES_DB=alphaflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
