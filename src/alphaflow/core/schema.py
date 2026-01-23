@@ -11,7 +11,7 @@ class Source(BaseModel):
 
 class FinancialReport(BaseModel):
     ticker: str = Field(description="The main stock ticker symbol analyzed")
-    current_price: float = Field(description="The latest price found")
+    current_price: float | None = Field(default=None, description="The latest price found. None if not found.")
 
     sentiment: Literal["Bullish", "Bearish", "Neutral"]
     risk_score: int = Field(description="Risk score from 1-10")

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """
 
     google_api_key: str = Field(..., description="Google API Key for Gemini")
-    llm_model_name: str = Field(default="gemini-2.0-flash", description="The Gemini model to use")
+    llm_model_name: str = Field(default="gemini-2.5-flash", description="The Gemini model to use")
     llm_temperature: float = Field(default=0.0, description="Temperature for LLM generation")
 
     search_k_results: int = Field(default=3, description="Number of results to retrieve from search/RAG")
